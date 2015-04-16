@@ -13,6 +13,7 @@ from django.utils.encoding import smart_text, smart_str
 
 import re
 import hashlib
+import urllib
 
 
 def get_fallback_metadata(lang_code, index=0):
@@ -134,7 +135,8 @@ def format_from_instance(string, instance=None, lang_code=None):
 
 def get_path_metadata(path, lang_code, instance=None, seo_context={}):
     # By default, fallback to general default
-    index = int(hashlib.md5(smart_str(path)).hexdigest(), 16)
+    path = smart_str(urllib.unquote(path))
+    index = int(hashlib.md5(path).hexdigest(), 16)
     result = get_fallback_metadata(lang_code, index=index)
 
     # Find correct metadata
@@ -155,7 +157,7 @@ def get_path_metadata(path, lang_code, instance=None, seo_context={}):
 
         # Collect all metadatas that matches the path
         for abs_seometadata in list(abstract_seometadatas):
-            regex_path = re.sub(r'\{\d+\}', r'([\w\d\-]+)', abs_seometadata.path)
+            regex_path = re.sub(r'\{\d+\}', r'([^/]+)', abs_seometadata.path)
             regex_path = '^' + regex_path + '/?$'
             match = re.search(regex_path, path)
             if match:

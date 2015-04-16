@@ -16,6 +16,7 @@ Changes (AMongeMoreno):
 	- Random generated titles and descriptions (only for seo models default).
 	- Parameters on foreign keys.
 	- fix smart_text
+	- Add filter for those with an object related.
 
 	// TO DOC
 
@@ -23,9 +24,13 @@ Changes (AMongeMoreno):
 	- Allow random titles on generic SeoMetadata (need to define how to determine it).
 	- Give access to the whole context (seo_context).
 	- Optional ending '/' character
+	- Migrations by south
+	- Add command to 'duplicate in other language'
+	- width 100%
 
 	// DOING 
 
+	- Command to copy from base language to others 
 
 	// TODO
 	- Add escape html tags.

@@ -28,6 +28,10 @@ class SeoRegisteredModel(models.Model):
 
 
 class SeoMetadata(models.Model):
+    view_name = models.CharField(
+        verbose_name=_('View Name'), max_length=30,
+        blank=True, null=True)
+
     content_type = models.ForeignKey(ContentType, null=True, blank=True, verbose_name=_('Model'))
     object_id = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Id'))
     content_object = generic.GenericForeignKey('content_type', 'object_id')
