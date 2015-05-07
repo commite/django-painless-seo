@@ -145,6 +145,13 @@ def get_path_metadata(path, lang_code, instance=None, seo_context={}):
 
     try:
         # Try to find exact match
+        seometadata = SeoMetadata.objects.filter(
+            path=path).get(
+                Q(lang_code=lang_code) |
+                Q(lang_code=settings.DEFAULT_LANG_CODE))
+
+    except SeoMetadata.MultipleObjectsReturned:
+        # More than one was found for this path, select the one with current lang
         seometadata = SeoMetadata.objects.get(
             path=path, lang_code=lang_code)
 

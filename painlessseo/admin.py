@@ -144,7 +144,7 @@ class SeoRegisteredModelAdmin(BaseModelAdmin):
     list_display = ('content_type', 'lang_code', 'title', 'description')
     list_filter = ('lang_code', RegisteredSeoModelsFilter)
     search_fields = ['title', 'description', ]
-    list_editable = ('title', 'description')
+    list_editable = ('title', 'description',)
 
 
 class AddSeoMetadataForm(forms.ModelForm):
@@ -156,10 +156,10 @@ class AddSeoMetadataForm(forms.ModelForm):
 
 class SeoMetadataAdmin(BaseModelAdmin):
     add_form = AddSeoMetadataForm
-    list_display = ('path', 'view_name', 'lang_code', 'title', 'description')
+    list_display = ('id', 'view_name', 'lang_code', 'path', 'title', 'description')
     search_fields = ['path', 'view_name']
     list_filter = ('lang_code', 'has_parameters', HasRelatedObjectFilter, ViewNameFilter)
-    list_editable = ('title', 'description', 'view_name')
+    list_editable = ('title', 'description', 'path', 'lang_code', 'view_name')
 
     def get_form(self, request, obj=None, **kwargs):
         """
