@@ -21,9 +21,9 @@ def recursive_include(directory, patterns):
 
 setup(
     name='django-painless-seo',
-    version='0.1.4',
-    author='Glamping Hub',
-    author_email='it@glampinghub.com',
+    version='0.1.5',
+    author='Andres Monge Moreno',
+    author_email='andres@eurasmus.com',
     packages=find_packages('.'),
     include_package_data=True,
     package_data={
@@ -36,7 +36,7 @@ setup(
     url='https://github.com/Glamping-Hub/django-painless-seo',
     license='BSD',
     classifiers=[
-        'Development Status :: 0.1.4 - Beta',
+        'Development Status :: 0.1.5 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',

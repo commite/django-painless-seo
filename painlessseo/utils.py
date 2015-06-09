@@ -158,12 +158,13 @@ def get_path_metadata(path, lang_code, instance=None, seo_context={}):
     except SeoMetadata.DoesNotExist:
         # SeoMetadata not found, try to find an alternative path
         abstract_seometadatas = SeoMetadata.objects.filter(
-            lang_code=lang_code, has_parameters=True,
-            ).order_by('id')
+            has_parameters=True).order_by('-priority')
+        abstract_lang = abstract_seometadatas.filter(lang_code=lang_code)
+        abstract_en = abstract_seometadatas.filter(lang_code=settings.DEFAULT_LANG_CODE)
         matches = []
 
         # Collect all metadatas that matches the path
-        for abs_seometadata in list(abstract_seometadatas):
+        for abs_seometadata in list(abstract_lang) + list(abstract_en):
             regex_path = re.sub(r'\{\d+\}', r'([^/]+)', abs_seometadata.path)
             regex_path = '^' + regex_path + '/?$'
             match = re.search(regex_path, path)

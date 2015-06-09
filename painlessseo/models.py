@@ -54,6 +54,11 @@ class SeoMetadata(models.Model):
         verbose_name=_('Description'), max_length=200, blank=False, null=True,
         help_text=_("Here you can make use of the parameters captured in the URL using the same '{X}' notation."))
 
+    priority = models.IntegerField(
+        verbose_name=_("Priority"),
+        help_text=_("Priority when duplicated. Higher the most priority. Default 0"),
+        blank=False, null=False, default=0)
+
     class Meta:
         verbose_name = _('SEO Path Metadata')
         verbose_name_plural = _('SEO Path Metadata')
