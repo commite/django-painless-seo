@@ -85,9 +85,12 @@ def format_from_params(string, **kwargs):
     result = string
     if kwargs:
         for name, value in kwargs.iteritems():
-            value = re.sub('-', ' ', smart_text(value)).title()
-            result = re.sub(
-                r'\{\s*%s\s*\}' % (name), value, result)
+            param_name = r'\{\s*%s\s*\}' % (name)
+            if re.search(param_name, result) is not None:
+                # De-slugify
+                value = re.sub('-', ' ', smart_text(value)).title()
+                # Update the content
+                result = re.sub(param_name, value, result)
 
     return result
 
@@ -133,6 +136,20 @@ def format_from_instance(string, instance=None, lang_code=None):
     return result
 
 
+def get_abstract_matches(path, metadatas):
+    matches = []
+    for abs_seometadata in list(metadatas):
+        regex_path = re.sub(r'\{\d+\}', r'([^/]+)', abs_seometadata.path)
+        regex_path = '^' + regex_path + '$'
+        match = re.search(regex_path, path)
+        if match:
+            matches.append({
+                'seometadata': abs_seometadata,
+                'groups': match.groups(),
+                })
+    return matches
+
+
 def get_path_metadata(path, lang_code, instance=None, seo_context={}):
     # By default, fallback to general default
     path = smart_str(urllib.unquote(path))
@@ -156,39 +173,35 @@ def get_path_metadata(path, lang_code, instance=None, seo_context={}):
             path=path, lang_code=lang_code)
 
     except SeoMetadata.DoesNotExist:
-        # SeoMetadata not found, try to find an alternative path
-        abstract_seometadatas = SeoMetadata.objects.filter(
-            has_parameters=True).order_by('-priority')
-        abstract_lang = abstract_seometadatas.filter(lang_code=lang_code)
-        abstract_en = abstract_seometadatas.filter(lang_code=settings.DEFAULT_LANG_CODE)
-        matches = []
+        # Before looking for abstract paths, we will see if there is a SeoModel
+        if instance:
+            # Look for registered model default
+            result = get_instance_metadata(instance, lang_code) or result
 
-        # Collect all metadatas that matches the path
-        for abs_seometadata in list(abstract_lang) + list(abstract_en):
-            regex_path = re.sub(r'\{\d+\}', r'([^/]+)', abs_seometadata.path)
-            regex_path = '^' + regex_path + '/?$'
-            match = re.search(regex_path, path)
-            if match:
-                matches.append({
-                    'seometadata': abs_seometadata,
-                    'groups': match.groups(),
-                    })
+        else:
+            # SeoMetadata not found, try to find an alternative path
+            abstract_seometadatas = SeoMetadata.objects.filter(
+                has_parameters=True).order_by('-priority')
 
-        if len(matches) > 0:
-            random_match = matches[index % len(matches)]
-            seometadata = random_match['seometadata']
-            path_args = random_match['groups']
+            abstract_lang = abstract_seometadatas.filter(lang_code=lang_code)
+            abstract_en = abstract_seometadatas.filter(lang_code=settings.DEFAULT_LANG_CODE)
+
+            # Collect all metadatas that matches the path
+            matches = get_abstract_matches(path, abstract_lang)
+
+            # If no matches on lang, check default lang
+            if len(matches) == 0:
+                matches = get_abstract_matches(path, abstract_en)
+
+            if len(matches) > 0:
+                random_match = matches[index % len(matches)]
+                seometadata = random_match['seometadata']
+                path_args = random_match['groups']
 
     if seometadata:
         # If seometadata found
         result = seometadata.get_metadata()
         instance = seometadata.content_object or instance
-
-    else:
-        # No exact nor abstract seo metadata found, prepare default
-        if instance:
-            # Look for registered model default
-            result = get_instance_metadata(instance, lang_code) or result
 
     # At this point, result contains the resolved value before formatting.
     formatted_result = format_metadata(result, instance, lang_code, path_args, seo_context)

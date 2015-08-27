@@ -136,8 +136,8 @@ class BaseModelAdmin(admin.ModelAdmin):
 class SeoMetadataInline(generic.GenericTabularInline):
     extra = 1
     model = SeoMetadata
-    readonly_fields = ('path',)
     formset = SeoMetadataInlineFormSet
+    exclude = ['path', 'has_parameters', 'view_name']
 
 
 class SeoRegisteredModelAdmin(BaseModelAdmin):
