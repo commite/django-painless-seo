@@ -169,34 +169,42 @@ def get_path_metadata(path, lang_code, instance=None, seo_context={}):
 
     except SeoMetadata.MultipleObjectsReturned:
         # More than one was found for this path, select the one with current lang
-        seometadata = SeoMetadata.objects.get(
+        seometadata = SeoMetadata.objects.filter(
             path=path, lang_code=lang_code)
 
+        if seometadata.exists():
+            return seometadata.first()
+
     except SeoMetadata.DoesNotExist:
+        min_priority = 0
         # Before looking for abstract paths, we will see if there is a SeoModel
         if instance:
             # Look for registered model default
-            result = get_instance_metadata(instance, lang_code) or result
+            instance_metadata = get_instance_metadata(instance, lang_code)
+            if instance_metadata:
+                # If there was an instance metadata, priority is 5
+                min_priority = 5
+                result = instance_metadata
 
-        else:
-            # SeoMetadata not found, try to find an alternative path
-            abstract_seometadatas = SeoMetadata.objects.filter(
-                has_parameters=True).order_by('-priority')
+        # SeoMetadata not found, try to find an alternative path
+        abstract_seometadatas = SeoMetadata.objects.filter(
+            has_parameters=True, priority__gte=min_priority
+            ).order_by('-priority')
 
-            abstract_lang = abstract_seometadatas.filter(lang_code=lang_code)
-            abstract_en = abstract_seometadatas.filter(lang_code=settings.DEFAULT_LANG_CODE)
+        abstract_lang = abstract_seometadatas.filter(lang_code=lang_code)
+        abstract_en = abstract_seometadatas.filter(lang_code=settings.DEFAULT_LANG_CODE)
 
-            # Collect all metadatas that matches the path
-            matches = get_abstract_matches(path, abstract_lang)
+        # Collect all metadatas that matches the path
+        matches = get_abstract_matches(path, abstract_lang)
 
-            # If no matches on lang, check default lang
-            if len(matches) == 0:
-                matches = get_abstract_matches(path, abstract_en)
+        # If no matches on lang, check default lang
+        if len(matches) == 0:
+            matches = get_abstract_matches(path, abstract_en)
 
-            if len(matches) > 0:
-                random_match = matches[index % len(matches)]
-                seometadata = random_match['seometadata']
-                path_args = random_match['groups']
+        if len(matches) > 0:
+            random_match = matches[index % len(matches)]
+            seometadata = random_match['seometadata']
+            path_args = random_match['groups']
 
     if seometadata:
         # If seometadata found
