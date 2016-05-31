@@ -1,8 +1,9 @@
 # Copyright (C) 2014 Glamping Hub (https://glampinghub.com)
 # License: BSD 3-Clause
 
-from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericRelation
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -34,7 +35,7 @@ class SeoMetadata(models.Model):
 
     content_type = models.ForeignKey(ContentType, null=True, blank=True, verbose_name=_('Model'))
     object_id = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Id'))
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     lang_code = models.CharField(verbose_name=_('Language'), max_length=2,
                                  choices=settings.SEO_LANGUAGES,

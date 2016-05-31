@@ -1,19 +1,20 @@
 # Copyright (C) 2014 Glamping Hub (https://glampinghub.com)
 # License: BSD 3-Clause
 
+from django import forms
 from django.contrib import admin
 from django.core import exceptions
-from django.contrib.contenttypes import generic
-from django.contrib.contenttypes.models import ContentType
-from painlessseo.models import SeoMetadata, SeoRegisteredModel
-from painlessseo.utils import register_seo_signals
 from django.utils.translation import activate, get_language
 from django.contrib.contenttypes.models import ContentType
-from django import forms
+from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django.forms import TextInput, Textarea
 from django.db import models
 from django.utils.text import slugify
 from django.db.models import Count
+
+from painlessseo.models import SeoMetadata, SeoRegisteredModel
+from painlessseo.utils import register_seo_signals
 
 
 class ViewNameFilter(admin.SimpleListFilter):
@@ -86,9 +87,9 @@ class RegisteredSeoModelsFilter(admin.SimpleListFilter):
 
         res = []
         models = SeoRegisteredModel.objects.values(
-            'content_type__id', 'content_type__name').distinct()
+            'content_type__id', 'content_type__model').distinct()
         for seomodel in list(models):
-            res.append((seomodel['content_type__id'], seomodel['content_type__name']))
+            res.append((seomodel['content_type__id'], seomodel['content_type__model']))
         return res
 
     def queryset(self, request, queryset):
@@ -98,7 +99,7 @@ class RegisteredSeoModelsFilter(admin.SimpleListFilter):
             return queryset.all()
 
 
-class SeoMetadataInlineFormSet(generic.BaseGenericInlineFormSet):
+class SeoMetadataInlineFormSet(BaseGenericInlineFormSet):
     def clean(self):
         for form in self.forms:
             if form.cleaned_data:
@@ -133,7 +134,7 @@ class BaseModelAdmin(admin.ModelAdmin):
     }
 
 
-class SeoMetadataInline(generic.GenericTabularInline):
+class SeoMetadataInline(GenericTabularInline):
     extra = 1
     model = SeoMetadata
     formset = SeoMetadataInlineFormSet
@@ -172,9 +173,5 @@ class SeoMetadataAdmin(BaseModelAdmin):
             })
         defaults.update(kwargs)
         return super(SeoMetadataAdmin, self).get_form(request, obj, **defaults)
-
-
-admin.site.register(SeoRegisteredModel, SeoRegisteredModelAdmin)
-admin.site.register(SeoMetadata, SeoMetadataAdmin)
 
 register_seo_signals()
