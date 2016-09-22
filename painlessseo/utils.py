@@ -11,6 +11,7 @@ from django.core.urlresolvers import resolve
 from painlessseo.models import SeoRegisteredModel
 from django.utils.encoding import smart_text, smart_str
 
+import random
 import re
 import hashlib
 import urllib
@@ -47,16 +48,10 @@ def get_instance_metadata(instance, lang_code):
             content_type=ctype, lang_code=lang_code).order_by('id')
 
         if available_metadata.exists():
-            total = available_metadata.count()
-            index = 0
-            if hasattr(instance, 'id'):
-                index = instance.id % total
-            elif hasattr(instance, 'pk'):
-                index = instance.pk % total
-
+            choosen = random.choice(available_metadata)
             return {
-                'title': available_metadata[index].title,
-                'description': available_metadata[index].description,
+                'title': choosen.title,
+                'description': choosen.description,
             }
 
 
