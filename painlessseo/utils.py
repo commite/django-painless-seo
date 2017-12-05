@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from painlessseo import settings
 from painlessseo.models import SeoMetadata
 from django.core.exceptions import ImproperlyConfigured
@@ -6,8 +8,6 @@ from django.utils.translation import activate, get_language
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
-from django.forms.models import model_to_dict
-from django.core.urlresolvers import resolve
 from painlessseo.models import SeoRegisteredModel
 from django.utils.encoding import smart_text, smart_str
 
@@ -55,7 +55,8 @@ def get_instance_metadata(instance, lang_code):
             }
 
 
-def format_metadata(result, instance=None, lang_code=None, path_args=[], seo_context={}):
+def format_metadata(result, instance=None, lang_code=None, path_args=[],
+                    seo_context={}):
     formatted_metadata = {}
     path_context = {}
     for index in range(0, len(path_args)):
@@ -163,7 +164,8 @@ def get_path_metadata(path, lang_code, instance=None, seo_context={}):
                 Q(lang_code=settings.DEFAULT_LANG_CODE))
 
     except SeoMetadata.MultipleObjectsReturned:
-        # More than one was found for this path, select the one with current lang
+        # More than one was found for this path, select the one with current
+        # lang
         seometadata = SeoMetadata.objects.filter(
             path=path, lang_code=lang_code)
 
@@ -187,7 +189,8 @@ def get_path_metadata(path, lang_code, instance=None, seo_context={}):
             ).order_by('-priority')
 
         abstract_lang = abstract_seometadatas.filter(lang_code=lang_code)
-        abstract_en = abstract_seometadatas.filter(lang_code=settings.DEFAULT_LANG_CODE)
+        abstract_en = abstract_seometadatas.filter(
+            lang_code=settings.DEFAULT_LANG_CODE)
 
         # Collect all metadatas that matches the path
         matches = get_abstract_matches(path, abstract_lang)
@@ -207,7 +210,8 @@ def get_path_metadata(path, lang_code, instance=None, seo_context={}):
         instance = seometadata.content_object or instance
 
     # At this point, result contains the resolved value before formatting.
-    formatted_result = format_metadata(result, instance, lang_code, path_args, seo_context)
+    formatted_result = format_metadata(result, instance, lang_code, path_args,
+                                       seo_context)
 
     return formatted_result
 

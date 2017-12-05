@@ -1,5 +1,6 @@
 # Copyright (C) 2014 Glamping Hub (https://glampinghub.com)
 # License: BSD 3-Clause
+from __future__ import unicode_literals
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -19,17 +20,20 @@ if isinstance(FALLBACK_DESCRIPTION, str):
     }
 
 if FALLBACK_TITLE is None:
-    raise ImproperlyConfigured('DEFAULT_SEO_TITLES is not defined in settings.')
+    raise ImproperlyConfigured('DEFAULT_SEO_TITLES is not defined in \
+                                settings.')
 
 if FALLBACK_DESCRIPTION is None:
-    raise ImproperlyConfigured('DEFAULT_SEO_DESCRIPTIONS is not defined in settings.')
+    raise ImproperlyConfigured('DEFAULT_SEO_DESCRIPTIONS is not defined in \
+                                settings.')
 
 I18N = getattr(settings, 'USE_I18N')
 
 if I18N:
     SEO_LANGUAGES = getattr(settings, 'LANGUAGES', None)
     if not SEO_LANGUAGES:
-        raise ImproperlyConfigured('If USE_I18N is set to True, you need to define LANGUAGES in settings.')
+        raise ImproperlyConfigured('If USE_I18N is set to True, you need to \
+                                    define LANGUAGES in settings.')
 else:
     SEO_LANGUAGES = ((DEFAULT_LANG_CODE, DEFAULT_LANG_CODE), )
 

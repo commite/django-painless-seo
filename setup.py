@@ -19,6 +19,7 @@ def recursive_include(directory, patterns):
                            for name in fnmatch.filter(files, pattern)])
     return result
 
+
 setup(
     name='django-painless-seo',
     version='0.1.9',
