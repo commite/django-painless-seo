@@ -10,11 +10,11 @@ from django.db import models
 from django.db.models import Q
 from painlessseo.models import SeoRegisteredModel
 from django.utils.encoding import smart_text, smart_str
+from urllib.parse import urlparse
 
 import random
 import re
 import hashlib
-import urllib
 
 
 def get_fallback_metadata(lang_code, index=0):
@@ -62,7 +62,7 @@ def format_metadata(result, instance=None, lang_code=None, path_args=[],
     for index in range(0, len(path_args)):
         path_context[str(index)] = path_args[index]
     seo_context.update(path_context)
-    for meta_key, meta_value in result.iteritems():
+    for meta_key, meta_value in result.items():
         # First format using the instance
         instance_string = format_from_instance(
             string=meta_value,
@@ -127,7 +127,7 @@ def format_from_instance(string, instance=None, lang_code=None):
                 if found:
                     result = re.sub(
                         r"\{\s*%s\s*\}" % match,
-                        unicode(attr_value or ''),
+                        str(attr_value or ''),
                         result)
     return result
 
@@ -148,8 +148,8 @@ def get_abstract_matches(path, metadatas):
 
 def get_path_metadata(path, lang_code, instance=None, seo_context={}):
     # By default, fallback to general default
-    path = smart_str(urllib.unquote(path))
-    index = int(hashlib.md5(path).hexdigest(), 16)
+    path = smart_str(urlparse(path).path)
+    index = int(hashlib.md5(path.encode('utf-8')).hexdigest(), 16)
     result = get_fallback_metadata(lang_code, index=index)
 
     # Find correct metadata

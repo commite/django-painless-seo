@@ -14,7 +14,8 @@ from painlessseo import settings
 
 
 class SeoRegisteredModel(models.Model):
-    content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    content_type = models.ForeignKey(ContentType, null=True, blank=True,
+                                     on_delete=models.deletion.CASCADE,)
     lang_code = models.CharField(verbose_name=_('Language'), max_length=2,
                                  choices=settings.SEO_LANGUAGES,
                                  default=settings.DEFAULT_LANG_CODE)
@@ -37,7 +38,8 @@ class SeoMetadata(models.Model):
         blank=True, null=True)
 
     content_type = models.ForeignKey(ContentType, null=True, blank=True,
-                                     verbose_name=_('Model'))
+                                     verbose_name=_('Model'),
+                                     on_delete=models.deletion.CASCADE,)
     object_id = models.PositiveIntegerField(null=True, blank=True,
                                             verbose_name=_('Id'))
     content_object = GenericForeignKey('content_type', 'object_id')
