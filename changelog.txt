@@ -1,3 +1,9 @@
+0.1.10
+======
+- Included python 3 support
+
+Previous to the fork
+====================
 Changes (AMongeMoreno): 
 
 	// DONE 
