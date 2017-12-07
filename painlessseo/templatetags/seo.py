@@ -1,11 +1,10 @@
 # Copyright (C) 2014 Glamping Hub (https://glampinghub.com)
 # License: BSD 3-Clause
+from __future__ import unicode_literals
 
 from django.template import Library
 from django.utils.translation import get_language
 
-from painlessseo import settings
-from painlessseo.models import SeoMetadata
 from painlessseo.utils import get_path_metadata
 from django import template
 
@@ -22,7 +21,8 @@ def do_capture_as(parser, token):
     try:
         tag_name, args = token.contents.split(None, 1)
     except ValueError:
-        raise template.TemplateSyntaxError("'capture_as' node requires a variable name.")
+        raise template.TemplateSyntaxError("'capture_as' node requires a \
+                                            variable name.")
     nodelist = parser.parse(('endcapture_as',))
     parser.delete_first_token()
     return CaptureAsNode(nodelist, args)

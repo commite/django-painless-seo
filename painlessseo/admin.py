@@ -1,5 +1,6 @@
 # Copyright (C) 2014 Glamping Hub (https://glampinghub.com)
 # License: BSD 3-Clause
+from __future__ import unicode_literals
 
 from django import forms
 from django.contrib import admin
@@ -10,8 +11,6 @@ from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.forms import TextInput, Textarea
 from django.db import models
-from django.utils.text import slugify
-from django.db.models import Count
 
 from painlessseo.models import SeoMetadata, SeoRegisteredModel
 from painlessseo.utils import register_seo_signals
@@ -89,7 +88,8 @@ class RegisteredSeoModelsFilter(admin.SimpleListFilter):
         models = SeoRegisteredModel.objects.values(
             'content_type__id', 'content_type__model').distinct()
         for seomodel in list(models):
-            res.append((seomodel['content_type__id'], seomodel['content_type__model']))
+            res.append((seomodel['content_type__id'],
+                        seomodel['content_type__model']))
         return res
 
     def queryset(self, request, queryset):
@@ -115,7 +115,8 @@ class SeoMetadataInlineFormSet(BaseGenericInlineFormSet):
 
                     if equal_lang.exists():
                         raise exceptions.ValidationError(
-                            'Already exists a SEO Metadata for this object and language %s.' % data["lang_code"])
+                            'Already exists a SEO Metadata for this object and \
+                            language %s.' % data["lang_code"])
 
                 # Compute path and update if neccessary
                 active_language = get_language()
@@ -129,7 +130,8 @@ class SeoMetadataInlineFormSet(BaseGenericInlineFormSet):
 
 class BaseModelAdmin(admin.ModelAdmin):
     formfield_overrides = {
-        models.CharField: {'widget': TextInput(attrs={'style': 'width:100%; margin-right: 20px;'})},
+        models.CharField: {'widget': TextInput(
+            attrs={'style': 'width:100%; margin-right: 20px;'})},
         models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 40})},
     }
 
@@ -157,10 +159,13 @@ class AddSeoMetadataForm(forms.ModelForm):
 
 class SeoMetadataAdmin(BaseModelAdmin):
     add_form = AddSeoMetadataForm
-    list_display = ('id', 'view_name', 'lang_code', 'path', 'title', 'description', 'priority')
+    list_display = ('id', 'view_name', 'lang_code', 'path', 'title',
+                    'description', 'priority')
     search_fields = ['path', 'view_name']
-    list_filter = ('lang_code', 'has_parameters', HasRelatedObjectFilter, ViewNameFilter)
-    list_editable = ('title', 'description', 'path', 'lang_code', 'view_name', 'priority')
+    list_filter = ('lang_code', 'has_parameters', HasRelatedObjectFilter,
+                   ViewNameFilter)
+    list_editable = ('title', 'description', 'path', 'lang_code', 'view_name',
+                     'priority')
 
     def get_form(self, request, obj=None, **kwargs):
         """
@@ -173,5 +178,6 @@ class SeoMetadataAdmin(BaseModelAdmin):
             })
         defaults.update(kwargs)
         return super(SeoMetadataAdmin, self).get_form(request, obj, **defaults)
+
 
 register_seo_signals()

@@ -4,18 +4,17 @@ sync_seo_models.py
     Goes through all the registered models syncing the seo information.
 
 """
+from __future__ import unicode_literals
+
 from optparse import make_option
 
-from django.core.management.base import NoArgsCommand, CommandError
-from django.core.urlresolvers import resolve, Resolver404
+from django.core.exceptions import ImproperlyConfigured
+from django.core.management.base import NoArgsCommand
 from django.contrib.contenttypes.models import ContentType
 
 from painlessseo import settings
-from painlessseo.utils import (
-    delete_seo, update_seo, get_fallback_metadata
-    )
+from painlessseo.utils import update_seo
 from painlessseo.models import SeoRegisteredModel
-import hashlib
 
 DEFAULT_CREATE_LANG = []
 DEFAULT_SEO_MODELS = settings.SEO_MODELS
@@ -23,15 +22,18 @@ DEFAULT_SEO_MODELS = settings.SEO_MODELS
 
 class Command(NoArgsCommand):
     option_list = NoArgsCommand.option_list + (
-        make_option('--langs', dest='update_langs', default=DEFAULT_CREATE_LANG,
-                    help='Use this to indicate which languages must be generated'),
+        make_option('--langs', dest='update_langs',
+                    default=DEFAULT_CREATE_LANG,
+                    help='Use this to indicate which languages must be \
+                    generated'),
         make_option('--models', dest='seo_models', default=DEFAULT_SEO_MODELS,
                     help='Use this to indicate which apps must be updated'),
         make_option('--sync-instances', dest='sync_instances', default=False,
                     help='Use this to indicate if instances must be synced'),
 
     )
-    help = '''DEBUG only: Sync the SEO info in the database for registered models. '''
+    help = '''DEBUG only: Sync the SEO info in the database for registered \
+            models. '''
     requires_model_validation = True
 
     def handle_noargs(self, **options):
@@ -51,9 +53,11 @@ class Command(NoArgsCommand):
         languages = settings.SEO_LANGUAGES
 
         for app, model in seo_models:
-            ctype = ContentType.objects.get(app_label=app.lower(), model=model.lower())
+            ctype = ContentType.objects.get(app_label=app.lower(),
+                                            model=model.lower())
             if not hasattr(ctype.model_class(), 'get_absolute_url'):
-                raise ImproperlyConfigured("Needed get_absolute_url method not defined on %s.%s model." % (app, model))
+                raise ImproperlyConfigured("Needed get_absolute_url method \
+                                not defined on %s.%s model." % (app, model))
             model_class = ctype.model_class()
 
             print("Registering %s model in app %s") % (model, app)
@@ -78,7 +82,8 @@ class Command(NoArgsCommand):
                 print("Updating %s instances in app %s") % (model, app)
                 objs = list(model_class.objects.all())
                 for obj in objs:
-                    update_seo(model_class, obj, auto_languages=update_langs, weak=True)
+                    update_seo(model_class, obj, auto_languages=update_langs,
+                               weak=True)
                 count = model_class.objects.count()
                 print("%d %s updated on app %s") % (count, model, app)
 
